@@ -1,27 +1,21 @@
 import aiohttp
 import asyncio
 import aiofiles
+
+from src.utils import check_directory
+
 import os
+from dotenv import load_dotenv
 
-MAX_CONCURRENT: int = 10  # устанавливаем макисмальное количество тасок
-URL: str = "https://loremflickr.com/320/240"  # определяем url ресурса
-FILE_NUMBER: int = 1  # определяем переменную для подсчета скачанных файлов
-DIRECTORY_NAME: str = "images"
+load_dotenv()
 
-
-def check_directory(directory: str) -> None:
-    """
-    Функция для проверки существует ли директория.
-    Создает директорию если та не существует.
-    :param directory: название директории
-    :return: None
-    """
-
-    if not os.path.isdir(directory):  # проверяем наличие директории
-        os.mkdir(directory)  # создаем директорию если та не существует
+MAX_CONCURRENT: int = int(os.getenv('MAX_CONCURRENT'))  # устанавливаем макисмальное количество тасок
+URL: str = os.getenv("URL")  # определяем url ресурса
+FILE_NUMBER: int = int(os.getenv("FILE_NUMBER"))  # определяем переменную для подсчета скачанных файлов
+DIRECTORY_NAME: str = os.getenv("DIRECTORY_NAME")
 
 
-async def write_file(data: bytes) -> None:
+async def write_file_async(data: bytes) -> None:
     """
     Функция для асинхронной записи данных в бинарном формате в .jpeg файл
     :param data: данные файла в бинарном формате
@@ -46,7 +40,7 @@ async def get_content(session: aiohttp.ClientSession, url: str) -> None:
 
     async with session.get(url=url) as response:  # определяем менеджер контекста для работы в сесии
         data = await response.content.read()  # отдаем контроль управления пока не получим данные с ресурса
-        await write_file(data)  # вызываем асинхронную функцию для записи файла
+        await write_file_async(data)  # вызываем асинхронную функцию для записи файла
 
 
 async def main(amount_of_files: int = 5):
@@ -69,7 +63,7 @@ async def main(amount_of_files: int = 5):
 
 
 if __name__ == "__main__":
-    check_directory(DIRECTORY_NAME)
+    check_directory(DIRECTORY_NAME)  # проверяем наличие директории
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())  # требуется для ОС Windows чтобы
      # корректно завершать корутины
     amount_of_files = int(input("Input the amount of files that should be downloaded: "))  # задаем количество файлов

@@ -1,27 +1,21 @@
 from concurrent.futures import ThreadPoolExecutor
 import requests
+
+from src.utils import check_directory
+
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
-MAX_CONCURRENT: int = 10  # устанавливаем макисмальное количество тасок
-URL: str = "https://loremflickr.com/320/240"  # определяем url ресурса
-FILE_NUMBER: int = 1  # определяем переменную для подсчета скачанных файлов
-DIRECTORY_NAME: str = "images2"
+MAX_CONCURRENT: int = int(os.getenv('MAX_CONCURRENT'))  # устанавливаем макисмальное количество тасок
+URL: str = os.getenv("URL")  # определяем url ресурса
+FILE_NUMBER: int = int(os.getenv("FILE_NUMBER"))  # определяем переменную для подсчета скачанных файлов
+DIRECTORY_NAME: str = os.getenv("DIRECTORY_NAME")
 
 
-def check_directory(directory: str) -> None:
-    """
-    Функция для проверки существует ли директория.
-    Создает директорию если та не существует.
-    :param directory: название директории
-    :return: None
-    """
-
-    if not os.path.isdir(directory):  # проверяем наличие директории
-        os.mkdir(directory)  # создаем директорию если та не существует
-
-
-def write_file(data: bytes) -> None:
+def write_file_sync(data: bytes) -> None:
     """
     Функция для записи данных в бинарном формате в .jpeg файл
     :param data: данные файла в бинарном формате
@@ -44,13 +38,14 @@ def get_content(url: str) -> None:
     """
 
     response = requests.get(url)  # запрашиваем данные с ресурса
-    write_file(response.content)  # пишем данные в файл
+    write_file_sync(response.content)  # пишем данные в файл
 
 
 if __name__ == "__main__":
-    check_directory(DIRECTORY_NAME)
+    check_directory(DIRECTORY_NAME)  # проверяем наличие директории
     amount_of_files = int(input("Input the amount of files that should be downloaded: "))  # задаем количество файлов
     # для загрузки
-    with ThreadPoolExecutor(max_workers=MAX_CONCURRENT) as executor:
-        urls = [URL for _ in range(amount_of_files)]
-        executor.map(get_content, urls)
+    with ThreadPoolExecutor(max_workers=MAX_CONCURRENT) as executor:  # определяем экземпляр класса
+        # ThreadPoolExecutor в контекстном менеджере
+        urls = [URL for _ in range(amount_of_files)]  #  создаем список ресурсов для скачивания картинок
+        executor.map(get_content, urls) #  запускаем потоки
