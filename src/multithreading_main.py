@@ -12,15 +12,22 @@ DIRECTORY_NAME: str = "images2"
 def check_directory(directory: str) -> None:
     """
     Функция для проверки существует ли директория.
-    Создает директория если та не существует.
-    :param directory:
-    :return:
+    Создает директорию если та не существует.
+    :param directory: название директории
+    :return: None
     """
+
     if not os.path.isdir(directory):  # проверяем наличие директории
         os.mkdir(directory)  # создаем директорию если та не существует
 
 
 def write_file(data: bytes) -> None:
+    """
+    Функция для записи данных в бинарном формате в .jpeg файл
+    :param data: данные файла в бинарном формате
+    :return: None
+    """
+
     global FILE_NUMBER  # объявляем что работать внутри функции будем с глобальной переменной
     file_name = f"{DIRECTORY_NAME}/image_{FILE_NUMBER}.jpeg"  # определяем имя записываемого файла
     with open(file_name, 'wb') as file:  # открываем менеджер контекста для записи файла
@@ -30,6 +37,12 @@ def write_file(data: bytes) -> None:
 
 
 def get_content(url: str) -> None:
+    """
+    Функция для получения контента с какого либо веб ресурса
+    :param url: ссылка на ресурс
+    :return: None
+    """
+
     response = requests.get(url)  # запрашиваем данные с ресурса
     write_file(response.content)  # пишем данные в файл
 

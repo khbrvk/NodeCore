@@ -13,9 +13,10 @@ def check_directory(directory: str) -> None:
     """
     Функция для проверки существует ли директория.
     Создает директорию если та не существует.
-    :param directory:
-    :return:
+    :param directory: название директории
+    :return: None
     """
+
     if not os.path.isdir(directory):  # проверяем наличие директории
         os.mkdir(directory)  # создаем директорию если та не существует
 
@@ -23,9 +24,10 @@ def check_directory(directory: str) -> None:
 async def write_file(data: bytes) -> None:
     """
     Функция для асинхронной записи данных в бинарном формате в .jpeg файл
-    :param data: bytes
+    :param data: данные файла в бинарном формате
     :return: None
     """
+
     global FILE_NUMBER  # объявляем что работать внутри функции будем с глобальной переменной
     file_name = f"{DIRECTORY_NAME}/image_{FILE_NUMBER}.jpeg"  # определяем имя записываемого файла
     async with aiofiles.open(file_name, 'wb') as file:  # открываем асинхронный менеджер контекста для записи файла
@@ -41,6 +43,7 @@ async def get_content(session: aiohttp.ClientSession, url: str) -> None:
     :param url: ссылка на ресурс
     :return: None
     """
+
     async with session.get(url=url) as response:  # определяем менеджер контекста для работы в сесии
         data = await response.content.read()  # отдаем контроль управления пока не получим данные с ресурса
         await write_file(data)  # вызываем асинхронную функцию для записи файла
@@ -49,9 +52,10 @@ async def get_content(session: aiohttp.ClientSession, url: str) -> None:
 async def main(amount_of_files: int = 5):
     """
     Событийный цикл для выполнения тасок (загрузка картинок)
-    :param amount_of_files:
-    :return:
+    :param amount_of_files: количество загружаемых файлов
+    :return: None
     """
+
     tasks = []  # определяем контейнер в котором будем хранить наши таски
     connector = aiohttp.TCPConnector(limit=MAX_CONCURRENT)  # определяем экземпляр класса TCPConnector чтобы
      # установить предельное значение обрабатываемых тасок
